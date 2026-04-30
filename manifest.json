@@ -2,7 +2,7 @@
   "name": "Mein Haushalt",
   "short_name": "Haushalt",
   "description": "Haushaltsaufgaben Tracker mit Punktesystem",
-  "start_url": "/haushalt.html",
+  "start_url": "/haushalt/haushalt.html",
   "display": "standalone",
   "background_color": "#f5f5f0",
   "theme_color": "#1a6b4a",
