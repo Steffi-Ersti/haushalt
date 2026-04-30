@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a6b4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Haushalt">
+<title>Haushalt</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; max-width: 480px; margin: 0 auto; }
+
+header { background: #1a6b4a; color: white; padding: 16px; position: sticky; top: 0; z-index: 100; }
+header h1 { font-size: 20px; font-weight: 600; }
+header .subtitle { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+.score-bar { background: #145538; padding: 10px 16px; display: flex; gap: 16px; }
+.score-item { text-align: center; flex: 1; }
+.score-item .val { font-size: 22px; font-weight: 700; color: white; }
+.score-item .lbl { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; }
+
+nav { background: white; display: flex; border-bottom: 1px solid #e0e0d8; }
+nav button { flex: 1; padding: 12px 4px; background: none; border: none; font-size: 13px; color: #888; cursor: pointer; border-bottom: 3px solid transparent; font-family: inherit; }
+nav button.active { color: #1a6b4a; border-bottom-color: #1a6b4a; font-weight: 600; }
+
+.view { display: none; padding: 12px; padding-bottom: 80px; }
+.view.active { display: block; }
+
+.section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #888; margin: 16px 0 8px; }
+.section-title:first-child { margin-top: 4px; }
+
+.task-card { background: white; border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #ebe9e2; }
+.task-card.done { opacity: 0.45; }
+.task-card.done .task-name { text-decoration: line-through; }
+
+.check-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #d0d0c8; background: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.check-btn.checked { background: #1a6b4a; border-color: #1a6b4a; color: white; }
+
+.task-info { flex: 1; min-width: 0; }
+.task-name { font-size: 15px; font-weight: 500; }
+.task-sub { font-size: 12px; color: #888; margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.status-badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-rot    { background: #fcebeb; color: #a32d2d; }
+.badge-orange { background: #faeeda; color: #854f0b; }
+.badge-gruen  { background: #eaf3de; color: #3b6d11; }
+
+.prio-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.prio-muss   { background: #e24b4a; }
+.prio-sollte { background: #ef9f27; }
+.prio-kann   { background: #63a522; }
+
+.task-pts { font-size: 13px; font-weight: 700; color: #1a6b4a; flex-shrink: 0; }
+
+.empty-msg { text-align: center; padding: 40px 20px; color: #888; }
+.empty-msg .big { font-size: 40px; margin-bottom: 12px; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #ebe9e2; }
+.stat-card .val { font-size: 28px; font-weight: 700; color: #1a6b4a; }
+.stat-card .lbl { font-size: 12px; color: #888; margin-top: 4px; }
+.history-item { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ebe9e2; font-size: 14px; }
+.history-item .pts { font-weight: 700; color: #1a6b4a; }
+
+.bereich-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.bereich-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid #d0d0c8; background: white; font-size: 12px; cursor: pointer; font-family: inherit; }
+.bereich-btn.active { background: #1a6b4a; color: white; border-color: #1a6b4a; }
+.all-task-row { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid #ebe9e2; display: flex; align-items: flex-start; gap: 10px; }
+.all-task-row .info { flex: 1; }
+.all-task-row .name { font-size: 14px; font-weight: 500; }
+.all-task-row .detail { font-size: 12px; color: #888; margin-top: 4px; line-height: 1.6; }
+.del-btn { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+
+.fab { position: fixed; bottom: 24px; right: 50%; transform: translateX(216px); width: 56px; height: 56px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 200; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 20px 20px 0 0; padding: 20px 16px 36px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; }
+.modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 16px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-row input, .form-row select {
+  width: 100%; padding: 10px 12px; border: 1px solid #d8d8d0; border-radius: 10px;
+  font-size: 15px; font-family: inherit; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none;
+}
+.form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.form-2col .form-row { margin-bottom: 0; }
+.btn-primary { width: 100%; padding: 13px; background: #1a6b4a; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 6px; font-family: inherit; }
+.btn-cancel { width: 100%; padding: 11px; background: none; border: 1px solid #d8d8d0; border-radius: 12px; font-size: 15px; cursor: pointer; margin-top: 8px; font-family: inherit; color: #555; }
+
+.reset-btn { width: 100%; padding: 10px; background: none; border: 1px solid #e0e0d8; border-radius: 10px; color: #aaa; font-family: inherit; font-size: 13px; cursor: pointer; margin-top: 12px; }
+
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a6b4a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 999; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏠 Mein Haushalt</h1>
+  <div class="subtitle" id="today-label"></div>
+</header>
+<div class="score-bar">
+  <div class="score-item"><div class="val" id="total-points">0</div><div class="lbl">Punkte gesamt</div></div>
+  <div class="score-item"><div class="val" id="streak">0</div><div class="lbl">Tage Streak</div></div>
+  <div class="score-item"><div class="val" id="today-done">0</div><div class="lbl">Heute erledigt</div></div>
+</div>
+
+<nav>
+  <button class="active" onclick="showView('heute')">Heute</button>
+  <button onclick="showView('alle')">Alle</button>
+  <button onclick="showView('statistik')">Statistik</button>
+</nav>
+
+<div id="view-heute" class="view active"></div>
+<div id="view-alle" class="view"></div>
+<div id="view-statistik" class="view"></div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2>Neue Aufgabe hinzufügen</h2>
+    <div class="form-row">
+      <label>Aufgabe *</label>
+      <input type="text" id="f-name" placeholder="z.B. Fenster putzen">
+    </div>
+    <div class="form-row">
+      <label>Bereich *</label>
+      <input type="text" id="f-bereich" placeholder="z.B. Küche, Bad …" list="bereich-list">
+      <datalist id="bereich-list"></datalist>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Priorität *</label>
+        <select id="f-prio">
+          <option value="Muss">Muss (3 Pkt)</option>
+          <option value="Sollte" selected>Sollte (2 Pkt)</option>
+          <option value="Kann">Kann (1 Pkt)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Intervall (Tage) *</label>
+        <input type="number" id="f-intervall" min="1" max="365" placeholder="7">
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Energielevel</label>
+        <select id="f-energie">
+          <option value="Rot">Rot (hoch)</option>
+          <option value="Gelb" selected>Gelb (mittel)</option>
+          <option value="Grün">Grün (gering)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Dauer</label>
+        <input type="text" id="f-dauer" placeholder="5–10 min">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Häufigkeit (beschreibend)</label>
+      <input type="text" id="f-haeufigkeit" placeholder="z.B. 1 mal pro Woche">
+    </div>
+    <div class="form-row">
+      <label>Geeignet für</label>
+      <input type="text" id="f-geeignet" placeholder="z.B. Wochenende, Homeoffice Tag">
+    </div>
+    <button class="btn-primary" onclick="saveTask()">Speichern</button>
+    <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_AUFGABEN = [
+  {id:1,  bereich:"Küche",        name:"Spülmaschine einräumen",             intervall:1,   prioritaet:"Muss",   energie:"Rot",  dauer:"3–10 min",  haeufigkeit:"täglich"},
+  {id:2,  bereich:"Küche",        name:"Arbeitsfläche abwischen",            intervall:3,   prioritaet:"Muss",   energie:"Gelb", dauer:"3–5 min",   haeufigkeit:"2–3x pro Woche"},
+  {id:3,  bereich:"Küche",        name:"Herd abwischen",                     intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:4,  bereich:"Küche",        name:"Spüle reinigen",                     intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"5 min",     haeufigkeit:"1x pro Woche"},
+  {id:5,  bereich:"Küche",        name:"Kühlschrank prüfen",                 intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:6,  bereich:"Bad",          name:"Toilette reinigen",                  intervall:7,   prioritaet:"Muss",   energie:"Rot",  dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:7,  bereich:"Bad",          name:"Waschbecken reinigen",               intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:8,  bereich:"Bad",          name:"Badewanne reinigen",                 intervall:14,  prioritaet:"Sollte", energie:"Gelb", dauer:"10–15 min", haeufigkeit:"alle 2 Wochen"},
+  {id:9,  bereich:"Bad",          name:"Dusche reinigen",                    intervall:14,  prioritaet:"Sollte", energie:"Gelb", dauer:"10–15 min", haeufigkeit:"alle 2 Wochen"},
+  {id:10, bereich:"Bad",          name:"Handtücher wechseln",                intervall:7,   prioritaet:"Muss",   energie:"Rot",  dauer:"3–5 min",   haeufigkeit:"1x pro Woche"},
+  {id:11, bereich:"Bad",          name:"Badmülleimer leeren",                intervall:7,   prioritaet:"Muss",   energie:"Rot",  dauer:"3 min",     haeufigkeit:"1x pro Woche"},
+  {id:12, bereich:"Bad",          name:"Spiegel reinigen",                   intervall:60,  prioritaet:"Kann",   energie:"Grün", dauer:"5 min",     haeufigkeit:"alle 2 Monate"},
+  {id:13, bereich:"Bad",          name:"Waschmaschine reinigen",             intervall:90,  prioritaet:"Kann",   energie:"Grün", dauer:"15–30 min", haeufigkeit:"alle 3 Monate"},
+  {id:14, bereich:"Bad",          name:"Heizung abstauben",                  intervall:60,  prioritaet:"Kann",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"alle 2 Monate"},
+  {id:15, bereich:"Wohnbereich",  name:"Oberflächen aufräumen",              intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–15 min",  haeufigkeit:"1x pro Woche"},
+  {id:16, bereich:"Wohnbereich",  name:"Staub wischen",                      intervall:21,  prioritaet:"Kann",   energie:"Grün", dauer:"10–20 min", haeufigkeit:"alle 2–4 Wochen"},
+  {id:17, bereich:"Schlafzimmer", name:"Kleidung vom Boden sammeln",         intervall:3,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–15 min",  haeufigkeit:"2x pro Woche"},
+  {id:18, bereich:"Schlafzimmer", name:"Bettwäsche wechseln",                intervall:21,  prioritaet:"Sollte", energie:"Grün", dauer:"10–20 min", haeufigkeit:"alle 2–3 Wochen"},
+  {id:19, bereich:"Böden",        name:"Küche saugen",                       intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:20, bereich:"Böden",        name:"Wohnbereich saugen",                 intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"10–20 min", haeufigkeit:"1x pro Woche"},
+  {id:21, bereich:"Böden",        name:"Schlafzimmer saugen",                intervall:14,  prioritaet:"Sollte", energie:"Grün", dauer:"5–10 min",  haeufigkeit:"alle 2 Wochen"},
+  {id:22, bereich:"Böden",        name:"Küche wischen",                      intervall:14,  prioritaet:"Sollte", energie:"Grün", dauer:"10 min",    haeufigkeit:"alle 2 Wochen"},
+  {id:23, bereich:"Böden",        name:"Wohnbereich wischen",                intervall:30,  prioritaet:"Kann",   energie:"Grün", dauer:"15–30 min", haeufigkeit:"alle 4 Wochen"},
+  {id:24, bereich:"Böden",        name:"Bad saugen",                         intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:25, bereich:"Böden",        name:"Bad wischen",                        intervall:14,  prioritaet:"Sollte", energie:"Grün", dauer:"10 min",    haeufigkeit:"alle 2 Wochen"},
+  {id:26, bereich:"Wäsche",       name:"Wäsche sammeln",                     intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:27, bereich:"Wäsche",       name:"Waschmaschine starten",              intervall:3,   prioritaet:"Muss",   energie:"Gelb", dauer:"5 min",     haeufigkeit:"1–2x pro Woche"},
+  {id:28, bereich:"Wäsche",       name:"Wäsche aufhängen",                   intervall:3,   prioritaet:"Muss",   energie:"Rot",  dauer:"10–15 min", haeufigkeit:"nach Waschgang"},
+  {id:29, bereich:"Wäsche",       name:"Wäsche zusammenlegen",               intervall:7,   prioritaet:"Sollte", energie:"Grün", dauer:"15–30 min", haeufigkeit:"1x pro Woche"},
+  {id:30, bereich:"Müll",         name:"Restmüll rausbringen",               intervall:7,   prioritaet:"Muss",   energie:"Rot",  dauer:"3–5 min",   haeufigkeit:"1x pro Woche"},
+  {id:31, bereich:"Müll",         name:"Altpapier rausbringen",              intervall:7,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"alle 1–2 Wochen"},
+  {id:32, bereich:"Vorräte",      name:"Einkaufsliste erstellen",            intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1x pro Woche"},
+  {id:33, bereich:"Vorräte",      name:"Lebensmittel einkaufen",             intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"30–60 min", haeufigkeit:"1x pro Woche"},
+  {id:34, bereich:"Vorräte",      name:"Vorratsschrank prüfen",              intervall:30,  prioritaet:"Sollte", energie:"Grün", dauer:"10–20 min", haeufigkeit:"1x pro Monat"},
+  {id:35, bereich:"Glasflächen",  name:"Fenster reinigen",                   intervall:120, prioritaet:"Kann",   energie:"Grün", dauer:"30–90 min", haeufigkeit:"alle 3–6 Monate"},
+  {id:36, bereich:"Organisation", name:"Post öffnen",                        intervall:7,   prioritaet:"Muss",   energie:"Gelb", dauer:"10–20 min", haeufigkeit:"1x pro Woche"},
+  {id:37, bereich:"Organisation", name:"Papierkram bearbeiten",              intervall:14,  prioritaet:"Muss",   energie:"Gelb", dauer:"20–45 min", haeufigkeit:"alle 2 Wochen"},
+  {id:38, bereich:"Saisonales",   name:"Kleiderschrank saisonal prüfen",     intervall:180, prioritaet:"Kann",   energie:"Grün", dauer:"30–90 min", haeufigkeit:"2x pro Jahr"},
+  {id:39, bereich:"Saisonales",   name:"Heizkörper entstauben",              intervall:180, prioritaet:"Kann",   energie:"Grün", dauer:"15–30 min", haeufigkeit:"1–2x pro Jahr"},
+  {id:40, bereich:"Sonstiges",    name:"Türgriffe & Lichtschalter reinigen", intervall:30,  prioritaet:"Sollte", energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"alle 2–4 Wochen"},
+  {id:41, bereich:"Sonstiges",    name:"10 Minuten Reset",                   intervall:2,   prioritaet:"Sollte", energie:"Gelb", dauer:"5–10 min",  haeufigkeit:"1–3x pro Woche"},
+];
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('haushalt_v3') || 'null') || initState(); }
+  catch(e) { return initState(); }
+}
+function initState() {
+  return { aufgaben: JSON.parse(JSON.stringify(DEFAULT_AUFGABEN)), lastDone: {}, doneToday: {}, totalPoints: 0, streak: 0, history: [], nextId: 100 };
+}
+function saveState(s) { localStorage.setItem('haushalt_v3', JSON.stringify(s)); }
+function today() { return new Date().toISOString().slice(0,10); }
+function daysSince(d) { if (!d) return 9999; return Math.floor((new Date(today()) - new Date(d)) / 86400000); }
+function daysOverdue(state, task) {
+  const last = state.lastDone[task.id] || null;
+  return last ? daysSince(last) - task.intervall : task.intervall;
+}
+function statusOf(state, task) {
+  const d = daysOverdue(state, task);
+  return d > 0 ? 'rot' : d === 0 ? 'orange' : 'gruen';
+}
+function statusLabel(state, task) {
+  const d = daysOverdue(state, task);
+  if (d > 0)  return { cls: 'badge-rot',    text: d === 1 ? '1 Tag überfällig' : d + ' Tage überfällig' };
+  if (d === 0) return { cls: 'badge-orange', text: 'Heute fällig' };
+  const r = Math.abs(d);
+  return { cls: 'badge-gruen', text: r === 1 ? 'in 1 Tag' : 'in ' + r + ' Tagen' };
+}
+function isDoneToday(state, id) { return (state.doneToday[today()] || []).includes(id); }
+function punkte(task) {
+  const p = task.prioritaet === 'Muss' ? 3 : task.prioritaet === 'Sollte' ? 2 : 1;
+  const e = task.energie === 'Rot' ? 3 : task.energie === 'Gelb' ? 2 : 1;
+  return p + e - 1;
+}
+
+function markDone(id) {
+  const state = loadState();
+  const t = today();
+  if (!state.doneToday[t]) state.doneToday[t] = [];
+  const task = state.aufgaben.find(x => x.id === id);
+  if (!task) return;
+  if (isDoneToday(state, id)) {
+    state.doneToday[t] = state.doneToday[t].filter(x => x !== id);
+    state.lastDone[id] = null;
+    const pts = punkte(task);
+    state.totalPoints = Math.max(0, state.totalPoints - pts);
+    state.history = state.history.filter(h => !(h.date === t && h.taskId === id));
+    showToast('↩ Rückgängig');
+  } else {
+    state.doneToday[t].push(id);
+    state.lastDone[id] = t;
+    const pts = punkte(task);
+    state.totalPoints += pts;
+    state.history.unshift({ date: t, taskId: id, name: task.name, pts });
+    if (state.history.length > 300) state.history = state.history.slice(0, 300);
+    showToast('✓ +' + pts + ' Punkt' + (pts > 1 ? 'e' : '') + '!');
+  }
+  updateStreak(state);
+  saveState(state);
+  render();
+}
+
+function deleteTask(id) {
+  if (!confirm('Aufgabe wirklich löschen?')) return;
+  const state = loadState();
+  state.aufgaben = state.aufgaben.filter(a => a.id !== id);
+  saveState(state);
+  render();
+  showToast('Aufgabe gelöscht');
+}
+
+function updateStreak(state) {
+  let streak = 0, d = new Date();
+  while (true) {
+    const ds = d.toISOString().slice(0,10);
+    if ((state.doneToday[ds] || []).length > 0) { streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  state.streak = streak;
+}
+
+let alleFilter = 'Alle';
+
+function render() {
+  const state = loadState();
+  const t = today();
+  document.getElementById('today-label').textContent = new Date().toLocaleDateString('de-DE', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('total-points').textContent = state.totalPoints;
+  document.getElementById('streak').textContent = state.streak;
+  document.getElementById('today-done').textContent = (state.doneToday[t] || []).length;
+  renderHeute(state);
+  renderAlle(state);
+  renderStatistik(state);
+}
+
+function taskSortKey(state, a) {
+  const d = daysOverdue(state, a);
+  const prio = a.prioritaet === 'Muss' ? 0 : a.prioritaet === 'Sollte' ? 1 : 2;
+  const urgency = d > 0 ? -d : d === 0 ? 0 : 1000 + Math.abs(d);
+  return [urgency, prio];
+}
+
+function renderHeute(state) {
+  const pending = state.aufgaben
+    .filter(a => !isDoneToday(state, a.id))
+    .sort((a, b) => {
+      const sa = taskSortKey(state, a), sb = taskSortKey(state, b);
+      return sa[0] !== sb[0] ? sa[0] - sb[0] : sa[1] - sb[1];
+    });
+  const done = state.aufgaben.filter(a => isDoneToday(state, a.id));
+
+  const rot    = pending.filter(a => statusOf(state,a) === 'rot');
+  const orange = pending.filter(a => statusOf(state,a) === 'orange');
+  const gruen  = pending.filter(a => statusOf(state,a) === 'gruen');
+
+  let html = '';
+  if (!pending.length && !done.length) html = `<div class="empty-msg"><div class="big">🎉</div><p>Alles erledigt – super gemacht!</p></div>`;
+  if (rot.length)    { html += `<div class="section-title">Überfällig (${rot.length})</div>`;    rot.forEach(a    => html += taskCard(a, state, false)); }
+  if (orange.length) { html += `<div class="section-title">Heute fällig (${orange.length})</div>`; orange.forEach(a => html += taskCard(a, state, false)); }
+  if (gruen.length)  { html += `<div class="section-title">Demnächst (${gruen.length})</div>`;  gruen.forEach(a  => html += taskCard(a, state, false)); }
+  if (done.length)   { html += `<div class="section-title">Heute erledigt (${done.length})</div>`; done.forEach(a => html += taskCard(a, state, true)); }
+  document.getElementById('view-heute').innerHTML = html;
+}
+
+function taskCard(task, state, done) {
+  const lbl = statusLabel(state, task);
+  const pts = punkte(task);
+  const prioCls = 'prio-' + task.prioritaet.toLowerCase();
+  return `<div class="task-card${done?' done':''}">
+    <button class="check-btn${done?' checked':''}" onclick="markDone(${task.id})">${done?'✓':''}</button>
+    <div class="task-info">
+      <div class="task-name">${task.name}</div>
+      <div class="task-sub">
+        <span class="prio-dot ${prioCls}"></span>
+        <span class="status-badge ${lbl.cls}">${lbl.text}</span>
+        <span>${task.bereich}${task.dauer ? ' · ' + task.dauer : ''}</span>
+      </div>
+    </div>
+    <div class="task-pts">+${pts}</div>
+  </div>`;
+}
+
+function renderAlle(state) {
+  const bereiche = ['Alle', ...new Set(state.aufgaben.map(a => a.bereich))];
+  let html = `<div class="bereich-filter">` + bereiche.map(b =>
+    `<button class="bereich-btn${b===alleFilter?' active':''}" onclick="setFilter('${b}')">${b}</button>`
+  ).join('') + `</div>`;
+
+  const filtered = alleFilter === 'Alle' ? state.aufgaben : state.aufgaben.filter(a => a.bereich === alleFilter);
+  filtered.forEach(a => {
+    const last = state.lastDone[a.id];
+    const lastStr = last ? new Date(last).toLocaleDateString('de-DE') : 'Noch nie';
+    const lbl = statusLabel(state, a);
+    html += `<div class="all-task-row">
+      <div class="info">
+        <div class="name">${a.name}</div>
+        <div class="detail">
+          <span class="status-badge ${lbl.cls}" style="font-size:10px;padding:2px 6px;margin-right:4px">${lbl.text}</span>
+          ${a.prioritaet} · alle ${a.intervall} Tag(e)${a.dauer ? ' · ' + a.dauer : ''} · Zuletzt: ${lastStr}
+        </div>
+      </div>
+      <button class="del-btn" onclick="deleteTask(${a.id})" title="Löschen">×</button>
+    </div>`;
+  });
+  html += `<button class="reset-btn" onclick="resetData()">⚠ Alle Daten zurücksetzen</button>`;
+  document.getElementById('view-alle').innerHTML = html;
+
+  const dl = document.getElementById('bereich-list');
+  if (dl) dl.innerHTML = bereiche.filter(b => b !== 'Alle').map(b => `<option value="${b}">`).join('');
+}
+
+function renderStatistik(state) {
+  const totalDone = Object.values(state.doneToday).reduce((s,a) => s + a.length, 0);
+  const days = Object.keys(state.doneToday).filter(d => state.doneToday[d].length > 0).length;
+  let html = `<div class="stats-grid">
+    <div class="stat-card"><div class="val">${state.totalPoints}</div><div class="lbl">Punkte gesamt</div></div>
+    <div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">Aktueller Streak</div></div>
+    <div class="stat-card"><div class="val">${totalDone}</div><div class="lbl">Erledigte Aufgaben</div></div>
+    <div class="stat-card"><div class="val">${days}</div><div class="lbl">Aktive Tage</div></div>
+  </div>`;
+  const hist = state.history || [];
+  if (hist.length) {
+    html += `<div class="section-title">Letzte Erledigungen</div>`;
+    hist.slice(0,40).forEach(h => {
+      html += `<div class="history-item"><span>${new Date(h.date).toLocaleDateString('de-DE')} · ${h.name}</span><span class="pts">+${h.pts}</span></div>`;
+    });
+  } else {
+    html += `<div class="empty-msg"><div class="big">📊</div><p>Noch keine Erledigungen.</p></div>`;
+  }
+  document.getElementById('view-statistik').innerHTML = html;
+}
+
+function setFilter(b) { alleFilter = b; render(); }
+
+function resetData() {
+  if (confirm('Wirklich alle Daten und Punkte zurücksetzen?')) {
+    localStorage.removeItem('haushalt_v3');
+    alleFilter = 'Alle';
+    render();
+    showToast('Daten zurückgesetzt');
+  }
+}
+
+function openModal() {
+  const state = loadState();
+  const bereiche = [...new Set(state.aufgaben.map(a => a.bereich))];
+  const dl = document.getElementById('bereich-list');
+  if (dl) dl.innerHTML = bereiche.map(b => `<option value="${b}">`).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+function saveTask() {
+  const name = document.getElementById('f-name').value.trim();
+  const bereich = document.getElementById('f-bereich').value.trim();
+  const intervall = parseInt(document.getElementById('f-intervall').value);
+  if (!name)          { alert('Bitte Aufgabenname eingeben.'); return; }
+  if (!bereich)       { alert('Bitte Bereich eingeben.'); return; }
+  if (!intervall || intervall < 1) { alert('Bitte gültiges Intervall (Tage) eingeben.'); return; }
+
+  const state = loadState();
+  state.aufgaben.push({
+    id: state.nextId++,
+    bereich,
+    name,
+    intervall,
+    prioritaet: document.getElementById('f-prio').value,
+    energie:    document.getElementById('f-energie').value,
+    dauer:      document.getElementById('f-dauer').value.trim() || '–',
+    haeufigkeit:document.getElementById('f-haeufigkeit').value.trim(),
+    geeignet:   document.getElementById('f-geeignet').value.trim(),
+  });
+  saveState(state);
+  closeModal();
+  ['f-name','f-bereich','f-intervall','f-dauer','f-haeufigkeit','f-geeignet'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-prio').value = 'Sollte';
+  document.getElementById('f-energie').value = 'Gelb';
+  showToast('Aufgabe gespeichert!');
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showView(v) {
+  ['heute','alle','statistik'].forEach(n => document.getElementById('view-'+n).classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('nav button')[['heute','alle','statistik'].indexOf(v)].classList.add('active');
+}
+
+render();
+</script>
+</body>
+</html>
