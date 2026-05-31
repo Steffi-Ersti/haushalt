@@ -3,130 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1a6b4a">
+<meta name="theme-color" content="#1a4a8a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Haushalt">
 <title>Haushalt</title>
 <link rel="manifest" href="manifest.json">
 <style>
+:root {
+  --bg: #f5f5f0; --bg2: #ffffff; --bg3: #f0f0ea;
+  --text: #1a1a1a; --text2: #555; --text3: #888; --text4: #aaa;
+  --border: #e8e8e0; --border2: #d8d8d0;
+  --blue: #1a4a8a; --blue-dark: #0f3570; --blue-light: #e8eef8;
+  --red: #a32d2d; --red-light: #fcebeb;
+  --orange: #854f0b; --orange-light: #faeeda;
+  --shadow: rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1e; --bg2: #26262c; --bg3: #303038;
+    --text: #f0f0f0; --text2: #ccc; --text3: #999; --text4: #666;
+    --border: #38383f; --border2: #48484f;
+    --blue: #4a7fd4; --blue-dark: #1a3a6a; --blue-light: #1a2a3a;
+    --red: #e06060; --red-light: #2a1515;
+    --orange: #d4903a; --orange-light: #2a1f0a;
+    --shadow: rgba(0,0,0,0.25);
+  }
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; max-width: 480px; margin: 0 auto; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; }
 
-header { background: #1a6b4a; color: white; padding: 16px; position: sticky; top: 0; z-index: 100; }
-header h1 { font-size: 20px; font-weight: 600; }
-header .subtitle { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+header { background: var(--blue); color: white; padding: 14px 16px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
+header .header-left h1 { font-size: 19px; font-weight: 600; }
+header .header-left .subtitle { font-size: 12px; opacity: 0.8; margin-top: 1px; }
+.menu-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 6px 10px; letter-spacing: 1px; min-height: 44px; }
 
-.score-bar { background: #145538; padding: 10px 16px; display: flex; gap: 16px; }
+.score-bar { background: var(--blue-dark); padding: 10px 16px; display: flex; gap: 8px; }
 .score-item { text-align: center; flex: 1; }
 .score-item .val { font-size: 22px; font-weight: 700; color: white; }
-.score-item .lbl { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; }
+.score-item .lbl { font-size: 10px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 1px; }
 
-nav { background: white; display: flex; border-bottom: 1px solid #e0e0d8; }
-nav button { flex: 1; padding: 12px 4px; background: none; border: none; font-size: 13px; color: #888; cursor: pointer; border-bottom: 3px solid transparent; font-family: inherit; }
-nav button.active { color: #1a6b4a; border-bottom-color: #1a6b4a; font-weight: 600; }
+nav { background: var(--bg2); display: flex; border-bottom: 1px solid var(--border); }
+nav button { flex: 1; padding: 12px 4px; background: none; border: none; font-size: 13px; color: var(--text3); cursor: pointer; border-bottom: 3px solid transparent; font-family: inherit; min-height: 44px; }
+nav button.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
 
-.view { display: none; padding: 12px; padding-bottom: 90px; }
+.view { display: none; padding: 12px; padding-bottom: 100px; }
 .view.active { display: block; }
 
-.section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #888; margin: 16px 0 8px; display: flex; align-items: center; justify-content: space-between; }
+.section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); margin: 16px 0 8px; display: flex; align-items: center; justify-content: space-between; }
 .section-title:first-child { margin-top: 4px; }
-.toggle-link { font-size: 12px; color: #1a6b4a; cursor: pointer; text-transform: none; font-weight: 500; letter-spacing: 0; }
+.toggle-link { font-size: 12px; color: var(--blue); cursor: pointer; text-transform: none; font-weight: 500; letter-spacing: 0; padding: 4px 0; }
+.demnaechst-hint { font-size: 12px; color: var(--text4); font-style: italic; margin-bottom: 8px; }
 
-.task-card { background: white; border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #ebe9e2; }
-.task-card.done { opacity: 0.45; }
+/* Task cards */
+.task-card { background: var(--bg2); border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px var(--shadow); border: 1px solid var(--border); transition: opacity 0.2s; }
+.task-card.done { opacity: 0.4; }
 .task-card.done .task-name { text-decoration: line-through; }
-
-.check-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #d0d0c8; background: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.check-btn.checked { background: #1a6b4a; border-color: #1a6b4a; color: white; }
-
+.check-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border2); background: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.1s, background 0.15s; -webkit-tap-highlight-color: transparent; }
+.check-btn:active { transform: scale(0.88); }
+.check-btn.checked { background: var(--blue); border-color: var(--blue); color: white; }
 .task-info { flex: 1; min-width: 0; }
-.task-name { font-size: 15px; font-weight: 500; }
-.task-sub { font-size: 12px; color: #888; margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.task-due { font-size: 11px; color: #aaa; margin-top: 2px; }
+.task-name { font-size: 15px; font-weight: 500; color: var(--text); }
+.task-sub { font-size: 12px; color: var(--text3); margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.task-due { font-size: 11px; color: var(--text4); margin-top: 3px; }
+.task-pts { font-size: 13px; font-weight: 700; color: var(--blue); flex-shrink: 0; }
 
 .status-badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.badge-rot    { background: #fcebeb; color: #a32d2d; }
-.badge-orange { background: #faeeda; color: #854f0b; }
-.badge-gruen  { background: #eaf3de; color: #3b6d11; }
+.badge-rot    { background: var(--red-light);    color: var(--red); }
+.badge-orange { background: var(--orange-light); color: var(--orange); }
+.badge-gruen  { background: var(--blue-light);   color: var(--blue); }
 
 .prio-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .prio-muss   { background: #e24b4a; }
 .prio-sollte { background: #ef9f27; }
-.prio-kann   { background: #63a522; }
+.prio-kann   { background: var(--blue); }
 
-.task-pts { font-size: 13px; font-weight: 700; color: #1a6b4a; flex-shrink: 0; }
-
-.empty-msg { text-align: center; padding: 40px 20px; color: #888; }
+.empty-msg { text-align: center; padding: 40px 20px; color: var(--text3); }
 .empty-msg .big { font-size: 40px; margin-bottom: 12px; }
 
 /* Statistik */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.stat-card { background: white; border-radius: 12px; padding: 16px; text-align: center; border: 1px solid #ebe9e2; }
-.stat-card .val { font-size: 28px; font-weight: 700; color: #1a6b4a; }
-.stat-card .lbl { font-size: 12px; color: #888; margin-top: 4px; }
-
-.week-bar-wrap { background: white; border-radius: 12px; padding: 14px; border: 1px solid #ebe9e2; margin-bottom: 16px; }
-.week-bar-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.stat-card { background: var(--bg2); border-radius: 12px; padding: 16px; text-align: center; border: 1px solid var(--border); }
+.stat-card .val { font-size: 28px; font-weight: 700; color: var(--blue); }
+.stat-card .lbl { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.stat-card .sub { font-size: 11px; color: var(--blue); margin-top: 3px; font-weight: 600; }
+.week-bar-wrap { background: var(--bg2); border-radius: 12px; padding: 14px; border: 1px solid var(--border); margin-bottom: 16px; }
+.week-bar-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
 .week-bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
 .week-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
-.week-bar-fill { width: 100%; background: #1a6b4a; border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.3s; }
+.week-bar-fill { width: 100%; background: var(--blue); border-radius: 4px 4px 0 0; min-height: 2px; }
 .week-bar-fill.today { background: #ef9f27; }
-.week-bar-lbl { font-size: 10px; color: #aaa; }
-.week-bar-val { font-size: 10px; color: #666; font-weight: 600; }
-
-.history-item { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ebe9e2; font-size: 14px; }
-.history-item .pts { font-weight: 700; color: #1a6b4a; white-space: nowrap; margin-left: 8px; }
+.week-bar-lbl { font-size: 10px; color: var(--text4); }
+.week-bar-val { font-size: 10px; color: var(--text2); font-weight: 600; }
+.history-item { background: var(--bg2); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); font-size: 14px; color: var(--text); }
+.history-item .pts { font-weight: 700; color: var(--blue); white-space: nowrap; margin-left: 8px; }
 
 /* Alle */
+.alle-sort { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; font-size: 12px; color: var(--text3); }
+.alle-sort select { font-size: 12px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border2); background: var(--bg2); color: var(--text); font-family: inherit; }
 .bereich-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.bereich-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid #d0d0c8; background: white; font-size: 12px; cursor: pointer; font-family: inherit; }
-.bereich-btn.active { background: #1a6b4a; color: white; border-color: #1a6b4a; }
-.all-task-row { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid #ebe9e2; display: flex; align-items: flex-start; gap: 10px; }
+.bereich-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border2); background: var(--bg2); font-size: 12px; cursor: pointer; font-family: inherit; color: var(--text); min-height: 34px; }
+.bereich-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+.filter-clear { font-size: 12px; color: var(--blue); cursor: pointer; margin-left: 4px; white-space: nowrap; }
+.all-task-row { background: var(--bg2); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 10px; }
 .all-task-row .info { flex: 1; }
-.all-task-row .name { font-size: 14px; font-weight: 500; }
-.all-task-row .detail { font-size: 12px; color: #888; margin-top: 4px; line-height: 1.7; }
-.row-actions { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
-.del-btn  { background: none; border: none; color: #ccc; font-size: 20px; cursor: pointer; padding: 2px 4px; line-height: 1; }
-.edit-btn { background: none; border: none; color: #aaa; font-size: 14px; cursor: pointer; padding: 2px 4px; line-height: 1; }
-.del-btn:active  { color: #e24b4a; }
-.edit-btn:active { color: #1a6b4a; }
-
-/* Datensicherung */
-.backup-box { background: white; border-radius: 12px; padding: 14px; border: 1px solid #ebe9e2; margin-top: 8px; }
-.backup-box p { font-size: 13px; color: #666; margin-bottom: 10px; line-height: 1.5; }
-.backup-btns { display: flex; gap: 8px; }
-.backup-btn { flex: 1; padding: 9px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; font-weight: 600; }
-.backup-btn-export { background: #1a6b4a; color: white; border: none; }
-.backup-btn-import { background: white; color: #1a6b4a; border: 2px solid #1a6b4a; }
-
-.reset-btn { width: 100%; padding: 10px; background: none; border: 1px solid #e0e0d8; border-radius: 10px; color: #aaa; font-family: inherit; font-size: 13px; cursor: pointer; margin-top: 8px; }
+.all-task-row .name { font-size: 14px; font-weight: 500; color: var(--text); }
+.all-task-row .detail { font-size: 12px; color: var(--text3); margin-top: 4px; line-height: 1.7; }
+.row-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.del-btn  { background: none; border: none; color: var(--text4); font-size: 20px; cursor: pointer; padding: 4px 6px; line-height: 1; min-height: 36px; }
+.edit-btn { background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 4px 6px; line-height: 1; min-height: 36px; }
+.del-btn:active  { color: var(--red); }
+.edit-btn:active { color: var(--blue); }
+.reset-btn { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); border-radius: 10px; color: var(--text4); font-family: inherit; font-size: 13px; cursor: pointer; margin-top: 8px; }
 
 /* FAB */
-.fab { position: fixed; bottom: 24px; right: 50%; transform: translateX(216px); width: 56px; height: 56px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.fab { position: fixed; bottom: 28px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--blue); color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 200; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
+.fab:active { transform: scale(0.92); }
 
-/* Modal */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-end; justify-content: center; }
+/* Dropdown */
+.dropdown { position: absolute; top: 54px; right: 8px; background: var(--bg2); border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); min-width: 230px; z-index: 500; overflow: hidden; border: 1px solid var(--border); }
+.dropdown-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; font-size: 15px; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; text-align: left; color: var(--text); min-height: 48px; -webkit-tap-highlight-color: transparent; }
+.dropdown-item:active { background: var(--bg3); }
+.dropdown-item .icon { font-size: 18px; width: 24px; text-align: center; }
+.dropdown-item.danger { color: var(--red); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 2px 0; }
+.dropdown-overlay { display: none; position: fixed; inset: 0; z-index: 400; }
+.dropdown-overlay.open { display: block; }
+
+/* Modals */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: flex-end; justify-content: center; }
 .modal-overlay.open { display: flex; }
-.modal { background: white; border-radius: 20px 20px 0 0; padding: 20px 16px 36px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; }
-.modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 16px; }
+.modal { background: var(--bg2); border-radius: 20px 20px 0 0; padding: 20px 16px env(safe-area-inset-bottom, 24px); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; }
+.modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
 .form-row { margin-bottom: 14px; }
-.form-row label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
-.form-row input, .form-row select { width: 100%; padding: 10px 12px; border: 1px solid #d8d8d0; border-radius: 10px; font-size: 15px; font-family: inherit; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none; }
+.form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-row input, .form-row select { width: 100%; padding: 12px; border: 1px solid var(--border2); border-radius: 10px; font-size: 16px; font-family: inherit; background: var(--bg); color: var(--text); -webkit-appearance: none; }
+.form-row input:focus, .form-row select:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
 .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .form-2col .form-row { margin-bottom: 0; }
-.btn-primary { width: 100%; padding: 13px; background: #1a6b4a; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 6px; font-family: inherit; }
-.btn-cancel  { width: 100%; padding: 11px; background: none; border: 1px solid #d8d8d0; border-radius: 12px; font-size: 15px; cursor: pointer; margin-top: 8px; font-family: inherit; color: #555; }
+.form-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.btn-primary { width: 100%; padding: 14px; background: var(--blue); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: inherit; min-height: 50px; }
+.btn-cancel  { width: 100%; padding: 12px; background: none; border: 1px solid var(--border2); border-radius: 12px; font-size: 15px; cursor: pointer; margin-top: 8px; font-family: inherit; color: var(--text2); min-height: 48px; }
+.btn-danger  { width: 100%; padding: 12px; background: none; border: 1px solid var(--red); border-radius: 12px; font-size: 15px; cursor: pointer; margin-top: 8px; font-family: inherit; color: var(--red); min-height: 48px; }
 
-.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a6b4a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 999; pointer-events: none; white-space: nowrap; }
+/* Confirm Modal */
+.confirm-modal { background: var(--bg2); border-radius: 20px 20px 0 0; padding: 24px 16px 32px; width: 100%; max-width: 480px; }
+.confirm-modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.confirm-modal p { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+
+/* Info Modal */
+.info-section { margin-bottom: 18px; }
+.info-section h3 { font-size: 14px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+.info-section p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.pts-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.pts-table th { background: var(--bg3); padding: 7px 10px; text-align: left; font-weight: 600; color: var(--text2); }
+.pts-table td { padding: 7px 10px; border-top: 1px solid var(--border); color: var(--text); }
+
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 999; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏠 Mein Haushalt</h1>
-  <div class="subtitle" id="today-label"></div>
+  <div class="header-left">
+    <h1 id="app-title">🏠 Mein Haushalt</h1>
+    <div class="subtitle" id="today-label"></div>
+  </div>
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="Menü">⋮</button>
 </header>
+
+<div class="dropdown-overlay" id="dropdown-overlay" onclick="closeMenu()"></div>
+<div class="dropdown" id="dropdown" style="display:none">
+  <button class="dropdown-item" onclick="openNameModal()"><span class="icon">👤</span> Name anpassen</button>
+  <button class="dropdown-item" onclick="openReminderModal()"><span class="icon">🔔</span> Erinnerung einstellen</button>
+  <div class="dropdown-divider"></div>
+  <button class="dropdown-item" onclick="exportData(); closeMenu()"><span class="icon">⬇</span> Backup exportieren</button>
+  <button class="dropdown-item" onclick="closeMenu(); document.getElementById('import-file').click()"><span class="icon">⬆</span> Backup importieren</button>
+  <div class="dropdown-divider"></div>
+  <button class="dropdown-item" onclick="openInfoModal()"><span class="icon">ℹ</span> Punktelogik</button>
+  <button class="dropdown-item" onclick="openInfoModal('version')"><span class="icon">📋</span> App-Info</button>
+  <div class="dropdown-divider"></div>
+  <button class="dropdown-item danger" onclick="closeMenu(); confirmReset()"><span class="icon">⚠</span> Alle Daten zurücksetzen</button>
+</div>
+
 <div class="score-bar">
   <div class="score-item"><div class="val" id="total-points">0</div><div class="lbl">Punkte gesamt</div></div>
   <div class="score-item"><div class="val" id="streak">0</div><div class="lbl">Tage Streak</div></div>
@@ -143,60 +202,68 @@ nav button.active { color: #1a6b4a; border-bottom-color: #1a6b4a; font-weight: 6
 <div id="view-alle" class="view"></div>
 <div id="view-statistik" class="view"></div>
 
-<button class="fab" onclick="openModal()">+</button>
+<button class="fab" onclick="openModal()" aria-label="Neue Aufgabe">+</button>
 
-<!-- Aufgabe hinzufügen / bearbeiten -->
-<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+<!-- Aufgabe Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event,'modal')">
   <div class="modal">
     <h2 id="modal-title">Neue Aufgabe</h2>
     <input type="hidden" id="f-edit-id">
-    <div class="form-row">
-      <label>Aufgabe *</label>
-      <input type="text" id="f-name" placeholder="z.B. Fenster putzen">
-    </div>
-    <div class="form-row">
-      <label>Bereich *</label>
-      <input type="text" id="f-bereich" placeholder="z.B. Küche, Bad …" list="bereich-list">
-      <datalist id="bereich-list"></datalist>
+    <div class="form-row"><label>Aufgabe *</label><input type="text" id="f-name" placeholder="z.B. Fenster putzen" autocomplete="off"></div>
+    <div class="form-row"><label>Bereich *</label><input type="text" id="f-bereich" placeholder="z.B. Küche, Bad …" list="bereich-list" autocomplete="off"><datalist id="bereich-list"></datalist></div>
+    <div class="form-2col">
+      <div class="form-row"><label>Priorität *</label><select id="f-prio"><option value="Muss">Muss (3 Pkt)</option><option value="Sollte" selected>Sollte (2 Pkt)</option><option value="Kann">Kann (1 Pkt)</option></select></div>
+      <div class="form-row"><label>Intervall (Tage) *</label><input type="number" id="f-intervall" min="1" max="365" placeholder="7" inputmode="numeric"></div>
     </div>
     <div class="form-2col">
-      <div class="form-row">
-        <label>Priorität *</label>
-        <select id="f-prio">
-          <option value="Muss">Muss (3 Pkt)</option>
-          <option value="Sollte" selected>Sollte (2 Pkt)</option>
-          <option value="Kann">Kann (1 Pkt)</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Intervall (Tage) *</label>
-        <input type="number" id="f-intervall" min="1" max="365" placeholder="7">
-      </div>
+      <div class="form-row"><label>Energielevel</label><select id="f-energie"><option value="Rot">Rot (hoch)</option><option value="Gelb" selected>Gelb (mittel)</option><option value="Grün">Grün (gering)</option></select></div>
+      <div class="form-row"><label>Dauer</label><input type="text" id="f-dauer" placeholder="5–10 min"></div>
     </div>
-    <div class="form-2col">
-      <div class="form-row">
-        <label>Energielevel</label>
-        <select id="f-energie">
-          <option value="Rot">Rot (hoch)</option>
-          <option value="Gelb" selected>Gelb (mittel)</option>
-          <option value="Grün">Grün (gering)</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Dauer</label>
-        <input type="text" id="f-dauer" placeholder="5–10 min">
-      </div>
-    </div>
-    <div class="form-row">
-      <label>Häufigkeit (beschreibend)</label>
-      <input type="text" id="f-haeufigkeit" placeholder="z.B. 1 mal pro Woche">
-    </div>
-    <div class="form-row">
-      <label>Geeignet für</label>
-      <input type="text" id="f-geeignet" placeholder="z.B. Wochenende, Homeoffice Tag">
-    </div>
+    <div class="form-row"><label>Zuletzt erledigt</label><input type="date" id="f-lastdone"><div class="form-hint">Leer lassen = noch nie erledigt</div></div>
+    <div class="form-row"><label>Häufigkeit</label><input type="text" id="f-haeufigkeit" placeholder="z.B. 1 mal pro Woche"></div>
+    <div class="form-row"><label>Geeignet für</label><input type="text" id="f-geeignet" placeholder="z.B. Wochenende"></div>
     <button class="btn-primary" onclick="saveTask()">Speichern</button>
-    <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+    <button class="btn-cancel" onclick="closeModal('modal')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- Name Modal -->
+<div class="modal-overlay" id="name-modal" onclick="closeModalOutside(event,'name-modal')">
+  <div class="modal">
+    <h2>👤 Name anpassen</h2>
+    <div class="form-row"><label>Dein Name</label><input type="text" id="f-username" placeholder="z.B. Steffi" autocomplete="off"></div>
+    <p class="form-hint" style="margin-bottom:16px">Erscheint als Titel der App, z.B. "Steffis Haushalt".</p>
+    <button class="btn-primary" onclick="saveName()">Speichern</button>
+    <button class="btn-cancel" onclick="closeModal('name-modal')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- Erinnerung Modal -->
+<div class="modal-overlay" id="reminder-modal" onclick="closeModalOutside(event,'reminder-modal')">
+  <div class="modal">
+    <h2>🔔 Erinnerung einstellen</h2>
+    <div class="form-row"><label>Uhrzeit</label><input type="time" id="f-reminder-time" value="08:00"></div>
+    <div class="form-row"><label>Erinnerung aktiv</label>
+      <select id="f-reminder-active"><option value="1">Ja, täglich erinnern</option><option value="0">Nein, keine Erinnerung</option></select>
+    </div>
+    <p class="form-hint" style="margin-bottom:16px;line-height:1.5">Nutzt Browser-Benachrichtigungen. Du wirst einmalig nach der Erlaubnis gefragt. Die App muss installiert sein.</p>
+    <button class="btn-primary" onclick="saveReminder()">Speichern</button>
+    <button class="btn-cancel" onclick="closeModal('reminder-modal')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal-overlay" id="info-modal" onclick="closeModalOutside(event,'info-modal')">
+  <div class="modal" id="info-modal-content"></div>
+</div>
+
+<!-- Confirm Modal (ersetzt window.confirm) -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="confirm-modal">
+    <h2 id="confirm-title">Bist du sicher?</h2>
+    <p id="confirm-text"></p>
+    <button class="btn-danger"  id="confirm-ok">Bestätigen</button>
+    <button class="btn-cancel"  onclick="closeModal('confirm-modal')">Abbrechen</button>
   </div>
 </div>
 
@@ -204,7 +271,8 @@ nav button.active { color: #1a6b4a; border-bottom-color: #1a6b4a; font-weight: 6
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Aufgaben ───────────────────────────────────────────────────────
+const APP_VERSION = '1.5';
+
 const DEFAULT_AUFGABEN = [
   {id:1,  bereich:"Küche",        name:"Spülmaschine einräumen",             intervall:1,   prioritaet:"Muss",   energie:"Rot",  dauer:"3–10 min",  haeufigkeit:"täglich"},
   {id:2,  bereich:"Küche",        name:"Arbeitsfläche abwischen",            intervall:3,   prioritaet:"Muss",   energie:"Gelb", dauer:"3–5 min",   haeufigkeit:"2–3x pro Woche"},
@@ -250,430 +318,425 @@ const DEFAULT_AUFGABEN = [
 ];
 
 const INITIAL_LAST_DONE = {
-  1:'2026-04-30', 2:'2026-04-30', 3:'2026-04-30', 4:'2026-04-30', 5:'2026-04-30',
-  6:'2026-04-10', 7:'2026-04-10', 8:'2026-04-10', 9:'2026-04-10',
-  10:'2026-04-30', 11:'2026-04-30', 12:'2026-04-30', 13:'2026-03-01', 14:'2026-03-01',
-  15:'2026-04-10', 16:'2026-04-10', 17:'2026-04-30', 18:'2026-04-10',
-  19:'2026-04-10', 20:'2026-04-10', 21:'2026-04-10', 22:'2026-04-10',
-  23:'2026-04-10', 24:'2026-04-10', 25:'2026-04-10',
-  26:'2026-04-30', 27:'2026-04-30', 28:'2026-04-30', 29:'2026-04-30',
-  30:'2026-04-30', 31:'2026-04-10',
-  32:'2026-04-30', 33:'2026-04-30', 34:'2026-04-30',
-  35:'2026-03-01',
-  36:'2026-04-30', 37:'2026-04-10',
-  38:'2026-11-01', 39:'2026-12-30',
-  40:'2026-03-01', 41:'2026-04-30',
+  1:'2026-04-30',2:'2026-04-30',3:'2026-04-30',4:'2026-04-30',5:'2026-04-30',
+  6:'2026-04-10',7:'2026-04-10',8:'2026-04-10',9:'2026-04-10',
+  10:'2026-04-30',11:'2026-04-30',12:'2026-04-30',13:'2026-03-01',14:'2026-03-01',
+  15:'2026-04-10',16:'2026-04-10',17:'2026-04-30',18:'2026-04-10',
+  19:'2026-04-10',20:'2026-04-10',21:'2026-04-10',22:'2026-04-10',
+  23:'2026-04-10',24:'2026-04-10',25:'2026-04-10',
+  26:'2026-04-30',27:'2026-04-30',28:'2026-04-30',29:'2026-04-30',
+  30:'2026-04-30',31:'2026-04-10',
+  32:'2026-04-30',33:'2026-04-30',34:'2026-04-30',
+  35:'2026-03-01',36:'2026-04-30',37:'2026-04-10',
+  38:'2026-11-01',39:'2026-12-30',
+  40:'2026-03-01',41:'2026-04-30',
 };
 
 // ── State ──────────────────────────────────────────────────────────
 function loadState() {
-  try { return JSON.parse(localStorage.getItem('haushalt_v3') || 'null') || initState(); }
+  try { return JSON.parse(localStorage.getItem('haushalt_v3')||'null')||initState(); }
   catch(e) { return initState(); }
 }
 function initState() {
-  return {
-    aufgaben: JSON.parse(JSON.stringify(DEFAULT_AUFGABEN)),
-    lastDone: Object.assign({}, INITIAL_LAST_DONE),
-    doneToday: {}, totalPoints: 0, streak: 0, history: [], nextId: 100
-  };
+  return { aufgaben:JSON.parse(JSON.stringify(DEFAULT_AUFGABEN)), lastDone:Object.assign({},INITIAL_LAST_DONE), doneToday:{}, totalPoints:0, streak:0, bestStreak:0, history:[], nextId:100, username:'', reminderTime:'08:00', reminderActive:false };
 }
-function saveState(s) { localStorage.setItem('haushalt_v3', JSON.stringify(s)); }
+function saveState(s) { localStorage.setItem('haushalt_v3',JSON.stringify(s)); }
 
-// ── Datum-Helfer ───────────────────────────────────────────────────
+// ── Datum ──────────────────────────────────────────────────────────
 function today() { return new Date().toISOString().slice(0,10); }
-function addDays(dateStr, n) {
-  const d = new Date(dateStr); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10);
+function addDays(ds,n) { const d=new Date(ds); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function daysSince(d) { if(!d) return 9999; return Math.floor((new Date(today())-new Date(d))/86400000); }
+function daysOverdue(state,task) { const l=state.lastDone[task.id]||null; return l?daysSince(l)-task.intervall:task.intervall; }
+function naechstesFaellig(state,task) { const l=state.lastDone[task.id]; return l?addDays(l,task.intervall):null; }
+function statusOf(state,task) { const d=daysOverdue(state,task); return d>0?'rot':d===0?'orange':'gruen'; }
+function statusLabel(state,task) {
+  const d=daysOverdue(state,task);
+  if(d>0)   return {cls:'badge-rot',    text:d===1?'1 Tag überfällig':d+' Tage überfällig'};
+  if(d===0) return {cls:'badge-orange', text:'Heute fällig'};
+  const r=Math.abs(d); return {cls:'badge-gruen', text:r===1?'in 1 Tag':'in '+r+' Tagen'};
 }
-function daysSince(d) { if (!d) return 9999; return Math.floor((new Date(today()) - new Date(d)) / 86400000); }
-function daysOverdue(state, task) {
-  const last = state.lastDone[task.id] || null;
-  return last ? daysSince(last) - task.intervall : task.intervall;
-}
-function naechstesFaellig(state, task) {
-  const last = state.lastDone[task.id];
-  if (!last) return null;
-  return addDays(last, task.intervall);
-}
-function statusOf(state, task) {
-  const d = daysOverdue(state, task);
-  return d > 0 ? 'rot' : d === 0 ? 'orange' : 'gruen';
-}
-function statusLabel(state, task) {
-  const d = daysOverdue(state, task);
-  if (d > 0)   return { cls:'badge-rot',    text: d === 1 ? '1 Tag überfällig' : d + ' Tage überfällig' };
-  if (d === 0) return { cls:'badge-orange', text: 'Heute fällig' };
-  const r = Math.abs(d);
-  return { cls:'badge-gruen', text: r === 1 ? 'in 1 Tag' : 'in ' + r + ' Tagen' };
-}
-function isDoneToday(state, id) { return (state.doneToday[today()] || []).includes(id); }
+function isDoneToday(state,id) { return (state.doneToday[today()]||[]).includes(id); }
 function punkte(task) {
-  const p = task.prioritaet === 'Muss' ? 3 : task.prioritaet === 'Sollte' ? 2 : 1;
-  const e = task.energie === 'Rot' ? 3 : task.energie === 'Gelb' ? 2 : 1;
-  return p + e - 1;
+  const p=task.prioritaet==='Muss'?3:task.prioritaet==='Sollte'?2:1;
+  const e=task.energie==='Rot'?3:task.energie==='Gelb'?2:1;
+  return p+e-1;
 }
 
-// ── Streak (ab gestern rückwärts + heute falls schon erledigt) ─────
+// ── Streak ─────────────────────────────────────────────────────────
 function updateStreak(state) {
-  let streak = 0;
-  const t = today();
-  // Zähle heute falls bereits erledigt
-  let d = new Date();
-  if ((state.doneToday[t] || []).length > 0) {
-    streak = 1;
-    d.setDate(d.getDate() - 1);
-    while (true) {
-      const ds = d.toISOString().slice(0,10);
-      if ((state.doneToday[ds] || []).length > 0) { streak++; d.setDate(d.getDate()-1); }
-      else break;
-    }
+  let streak=0, d=new Date();
+  const t=today();
+  if((state.doneToday[t]||[]).length>0){
+    streak=1; d.setDate(d.getDate()-1);
+    while(true){ const ds=d.toISOString().slice(0,10); if((state.doneToday[ds]||[]).length>0){streak++;d.setDate(d.getDate()-1);}else break; }
   } else {
-    // Fange ab gestern an
-    d.setDate(d.getDate() - 1);
-    while (true) {
-      const ds = d.toISOString().slice(0,10);
-      if ((state.doneToday[ds] || []).length > 0) { streak++; d.setDate(d.getDate()-1); }
-      else break;
-    }
+    d.setDate(d.getDate()-1);
+    while(true){ const ds=d.toISOString().slice(0,10); if((state.doneToday[ds]||[]).length>0){streak++;d.setDate(d.getDate()-1);}else break; }
   }
-  state.streak = streak;
+  state.streak=streak;
+  if(streak>(state.bestStreak||0)) state.bestStreak=streak;
 }
 
 // ── Aktionen ───────────────────────────────────────────────────────
 function markDone(id) {
-  const state = loadState();
-  const t = today();
-  if (!state.doneToday[t]) state.doneToday[t] = [];
-  const task = state.aufgaben.find(x => x.id === id);
-  if (!task) return;
-  if (isDoneToday(state, id)) {
-    state.doneToday[t] = state.doneToday[t].filter(x => x !== id);
-    // lastDone auf vorherigen Wert zurücksetzen (aus history)
-    const prev = state.history.find(h => h.taskId === id && h.date !== t);
-    state.lastDone[id] = prev ? prev.date : null;
-    const pts = punkte(task);
-    state.totalPoints = Math.max(0, state.totalPoints - pts);
-    // Nur den heutigen History-Eintrag für diese taskId entfernen
-    const idx = state.history.findIndex(h => h.taskId === id && h.date === t);
-    if (idx !== -1) state.history.splice(idx, 1);
+  const state=loadState(), t=today();
+  if(!state.doneToday[t]) state.doneToday[t]=[];
+  const task=state.aufgaben.find(x=>x.id===id); if(!task) return;
+  if(isDoneToday(state,id)) {
+    state.doneToday[t]=state.doneToday[t].filter(x=>x!==id);
+    const prev=state.history.find(h=>h.taskId===id&&h.date!==t);
+    state.lastDone[id]=prev?prev.date:null;
+    state.totalPoints=Math.max(0,state.totalPoints-punkte(task));
+    const idx=state.history.findIndex(h=>h.taskId===id&&h.date===t);
+    if(idx!==-1) state.history.splice(idx,1);
     showToast('↩ Rückgängig');
   } else {
     state.doneToday[t].push(id);
-    state.lastDone[id] = t;
-    const pts = punkte(task);
-    state.totalPoints += pts;
-    state.history.unshift({ date: t, taskId: id, name: task.name, pts });
-    if (state.history.length > 300) state.history = state.history.slice(0, 300);
-    showToast('✓ +' + pts + ' Punkt' + (pts > 1 ? 'e' : '') + '!');
+    state.lastDone[id]=t;
+    const pts=punkte(task);
+    state.totalPoints+=pts;
+    state.history.unshift({date:t,taskId:id,name:task.name,pts});
+    if(state.history.length>300) state.history=state.history.slice(0,300);
+    showToast('✓ +'+pts+' Punkt'+(pts>1?'e':'')+'!');
   }
-  updateStreak(state);
-  saveState(state);
-  render();
+  updateStreak(state); saveState(state); render();
+}
+
+// ── Confirm Modal (ersetzt window.confirm) ─────────────────────────
+function showConfirm(title, text, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-text').textContent  = text;
+  document.getElementById('confirm-ok').onclick = () => { closeModal('confirm-modal'); onOk(); };
+  document.getElementById('confirm-modal').classList.add('open');
 }
 
 function deleteTask(id) {
-  if (!confirm('Aufgabe wirklich löschen?')) return;
-  const state = loadState();
-  state.aufgaben = state.aufgaben.filter(a => a.id !== id);
-  saveState(state); render(); showToast('Aufgabe gelöscht');
+  const state=loadState(), task=state.aufgaben.find(a=>a.id===id); if(!task) return;
+  showConfirm('Aufgabe löschen?', '"'+task.name+'" wird dauerhaft gelöscht.', ()=>{
+    const s=loadState(); s.aufgaben=s.aufgaben.filter(a=>a.id!==id); saveState(s); render(); showToast('Aufgabe gelöscht');
+  });
+}
+function confirmReset() {
+  showConfirm('Alle Daten zurücksetzen?', 'Punkte, Verlauf und Erledigungen werden gelöscht. Die Aufgabenliste bleibt erhalten.', ()=>{
+    localStorage.removeItem('haushalt_v3'); alleFilter='Alle'; showDemnaechst=false; alleSort='status'; render(); showToast('Daten zurückgesetzt');
+  });
 }
 
 // ── UI-Zustand ─────────────────────────────────────────────────────
-let alleFilter = 'Alle';
-let showDemnaechst = false;
+let alleFilter='Alle', showDemnaechst=false, alleSort='status';
 
 function render() {
-  const state = loadState();
-  const t = today();
-  document.getElementById('today-label').textContent = new Date().toLocaleDateString('de-DE', {weekday:'long', day:'numeric', month:'long'});
-  document.getElementById('total-points').textContent = state.totalPoints;
-  document.getElementById('streak').textContent = state.streak;
-  document.getElementById('today-done').textContent = (state.doneToday[t] || []).length;
-  renderHeute(state);
-  renderAlle(state);
-  renderStatistik(state);
+  const state=loadState(), t=today();
+  const name=state.username?'🏠 '+state.username+'s Haushalt':'🏠 Mein Haushalt';
+  document.getElementById('app-title').textContent=name;
+  document.getElementById('today-label').textContent=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('total-points').textContent=state.totalPoints;
+  document.getElementById('streak').textContent=state.streak;
+  document.getElementById('today-done').textContent=(state.doneToday[t]||[]).length;
+  renderHeute(state); renderAlle(state); renderStatistik(state);
 }
 
-function taskSortKey(state, a) {
-  const d = daysOverdue(state, a);
-  const prio = a.prioritaet === 'Muss' ? 0 : a.prioritaet === 'Sollte' ? 1 : 2;
-  return [d > 0 ? -d : d === 0 ? 0 : 1000 + Math.abs(d), prio];
+function taskSortKey(state,a) {
+  const d=daysOverdue(state,a), prio=a.prioritaet==='Muss'?0:a.prioritaet==='Sollte'?1:2;
+  return [d>0?-d:d===0?0:1000+Math.abs(d),prio];
 }
 
 function renderHeute(state) {
-  const pending = state.aufgaben
-    .filter(a => !isDoneToday(state, a.id))
-    .sort((a, b) => { const sa = taskSortKey(state,a), sb = taskSortKey(state,b); return sa[0]!==sb[0]?sa[0]-sb[0]:sa[1]-sb[1]; });
-  const done = state.aufgaben.filter(a => isDoneToday(state, a.id));
-
-  const rot    = pending.filter(a => statusOf(state,a) === 'rot');
-  const orange = pending.filter(a => statusOf(state,a) === 'orange');
-  const gruen  = pending.filter(a => statusOf(state,a) === 'gruen');
-
-  let html = '';
-  if (!rot.length && !orange.length && !done.length)
-    html = `<div class="empty-msg"><div class="big">🎉</div><p>Nichts überfällig – super!</p></div>`;
-
-  if (rot.length) {
-    html += `<div class="section-title">Überfällig (${rot.length})</div>`;
-    rot.forEach(a => html += taskCard(a, state, false));
+  const pending=state.aufgaben.filter(a=>!isDoneToday(state,a.id)).sort((a,b)=>{const sa=taskSortKey(state,a),sb=taskSortKey(state,b);return sa[0]!==sb[0]?sa[0]-sb[0]:sa[1]-sb[1];});
+  const done=state.aufgaben.filter(a=>isDoneToday(state,a.id));
+  const rot=pending.filter(a=>statusOf(state,a)==='rot');
+  const orange=pending.filter(a=>statusOf(state,a)==='orange');
+  const gruen=pending.filter(a=>statusOf(state,a)==='gruen');
+  let html='';
+  if(!rot.length&&!orange.length&&!done.length) html=`<div class="empty-msg"><div class="big">🎉</div><p>Nichts überfällig – super gemacht!</p></div>`;
+  if(rot.length)    { html+=`<div class="section-title">Überfällig (${rot.length})</div>`;    rot.forEach(a=>html+=taskCard(a,state,false)); }
+  if(orange.length) { html+=`<div class="section-title">Heute fällig (${orange.length})</div>`; orange.forEach(a=>html+=taskCard(a,state,false)); }
+  if(gruen.length)  {
+    html+=`<div class="section-title"><span>Demnächst (${gruen.length})</span><span class="toggle-link" onclick="toggleDemnaechst()">${showDemnaechst?'Ausblenden ▲':'Einblenden ▼'}</span></div>`;
+    if(!showDemnaechst) html+=`<div class="demnaechst-hint">Tippe auf "Einblenden" um ${gruen.length} weitere Aufgaben zu sehen.</div>`;
+    else gruen.forEach(a=>html+=taskCard(a,state,false));
   }
-  if (orange.length) {
-    html += `<div class="section-title">Heute fällig (${orange.length})</div>`;
-    orange.forEach(a => html += taskCard(a, state, false));
-  }
-  if (gruen.length) {
-    html += `<div class="section-title">
-      <span>Demnächst (${gruen.length})</span>
-      <span class="toggle-link" onclick="toggleDemnaechst()">${showDemnaechst ? 'Ausblenden' : 'Einblenden'}</span>
-    </div>`;
-    if (showDemnaechst) gruen.forEach(a => html += taskCard(a, state, false));
-  }
-  if (done.length) {
-    html += `<div class="section-title">Heute erledigt (${done.length})</div>`;
-    done.forEach(a => html += taskCard(a, state, true));
-  }
-  document.getElementById('view-heute').innerHTML = html;
+  if(done.length) { html+=`<div class="section-title">Heute erledigt (${done.length})</div>`; done.forEach(a=>html+=taskCard(a,state,true)); }
+  document.getElementById('view-heute').innerHTML=html;
 }
 
-function toggleDemnaechst() { showDemnaechst = !showDemnaechst; render(); }
+function toggleDemnaechst() { showDemnaechst=!showDemnaechst; render(); }
 
-function taskCard(task, state, done) {
-  const lbl = statusLabel(state, task);
-  const pts = punkte(task);
-  const prioCls = 'prio-' + task.prioritaet.toLowerCase();
-  const naechstes = naechstesFaellig(state, task);
-  const naechstesStr = naechstes ? 'Fällig am ' + new Date(naechstes).toLocaleDateString('de-DE') : '';
+function taskCard(task,state,done) {
+  const lbl=statusLabel(state,task), pts=punkte(task), prioCls='prio-'+task.prioritaet.toLowerCase();
+  const naechstes=naechstesFaellig(state,task);
+  const naechstesStr=naechstes&&!done?'<div class="task-due">Fällig am '+new Date(naechstes).toLocaleDateString('de-DE')+'</div>':'';
   return `<div class="task-card${done?' done':''}">
     <button class="check-btn${done?' checked':''}" onclick="markDone(${task.id})">${done?'✓':''}</button>
     <div class="task-info">
       <div class="task-name">${task.name}</div>
-      <div class="task-sub">
-        <span class="prio-dot ${prioCls}"></span>
-        <span class="status-badge ${lbl.cls}">${lbl.text}</span>
-        <span>${task.bereich}${task.dauer ? ' · ' + task.dauer : ''}</span>
-      </div>
-      ${naechstesStr && !done ? '<div class="task-due">' + naechstesStr + '</div>' : ''}
+      <div class="task-sub"><span class="prio-dot ${prioCls}"></span><span class="status-badge ${lbl.cls}">${lbl.text}</span><span>${task.bereich}${task.dauer?' · '+task.dauer:''}</span></div>
+      ${naechstesStr}
     </div>
     <div class="task-pts">+${pts}</div>
   </div>`;
 }
 
 function renderAlle(state) {
-  const bereiche = ['Alle', ...new Set(state.aufgaben.map(a => a.bereich))];
-  let html = `<div class="bereich-filter">` + bereiche.map(b =>
-    `<button class="bereich-btn${b===alleFilter?' active':''}" onclick="setFilter('${b}')">${b}</button>`
-  ).join('') + `</div>`;
+  const bereiche=['Alle',...new Set(state.aufgaben.map(a=>a.bereich))];
+  let filtered=alleFilter==='Alle'?[...state.aufgaben]:state.aufgaben.filter(a=>a.bereich===alleFilter);
 
-  const filtered = alleFilter === 'Alle' ? state.aufgaben : state.aufgaben.filter(a => a.bereich === alleFilter);
-  filtered.forEach(a => {
-    const last = state.lastDone[a.id];
-    const lastStr = last ? new Date(last).toLocaleDateString('de-DE') : 'Noch nie';
-    const naechstes = naechstesFaellig(state, a);
-    const naechstesStr = naechstes ? new Date(naechstes).toLocaleDateString('de-DE') : '–';
-    const lbl = statusLabel(state, a);
-    html += `<div class="all-task-row">
+  // Sortierung
+  if(alleSort==='status') filtered.sort((a,b)=>{const sa=taskSortKey(state,a),sb=taskSortKey(state,b);return sa[0]!==sb[0]?sa[0]-sb[0]:sa[1]-sb[1];});
+  else if(alleSort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  else if(alleSort==='bereich') filtered.sort((a,b)=>a.bereich.localeCompare(b.bereich,'de')||a.name.localeCompare(b.name,'de'));
+  else if(alleSort==='prio') filtered.sort((a,b)=>{const p={Muss:0,Sollte:1,Kann:2};return p[a.prioritaet]-p[b.prioritaet]||a.name.localeCompare(b.name,'de');});
+
+  let html=`<div class="bereich-filter">`+bereiche.map(b=>`<button class="bereich-btn${b===alleFilter?' active':''}" onclick="setFilter('${b}')">${b}</button>`).join('');
+  if(alleFilter!=='Alle') html+=`<span class="filter-clear" onclick="setFilter('Alle')">× Filter aufheben</span>`;
+  html+=`</div>`;
+  html+=`<div class="alle-sort"><span>Sortierung:</span><select onchange="alleSort=this.value;render()">
+    <option value="status"${alleSort==='status'?' selected':''}>Status</option>
+    <option value="prio"${alleSort==='prio'?' selected':''}>Priorität</option>
+    <option value="bereich"${alleSort==='bereich'?' selected':''}>Bereich</option>
+    <option value="name"${alleSort==='name'?' selected':''}>Name</option>
+  </select></div>`;
+
+  filtered.forEach(a=>{
+    const last=state.lastDone[a.id], lastStr=last?new Date(last).toLocaleDateString('de-DE'):'Noch nie';
+    const naechstes=naechstesFaellig(state,a), naechstesStr=naechstes?new Date(naechstes).toLocaleDateString('de-DE'):'–';
+    const lbl=statusLabel(state,a);
+    html+=`<div class="all-task-row">
       <div class="info">
         <div class="name">${a.name}</div>
-        <div class="detail">
-          <span class="status-badge ${lbl.cls}" style="font-size:10px;padding:2px 6px;margin-right:4px">${lbl.text}</span>
-          ${a.prioritaet} · alle ${a.intervall} Tag(e)${a.dauer ? ' · ' + a.dauer : ''}<br>
-          Zuletzt: ${lastStr} · Nächstes Mal: ${naechstesStr}
-        </div>
+        <div class="detail"><span class="status-badge ${lbl.cls}" style="font-size:10px;padding:2px 6px;margin-right:4px">${lbl.text}</span>${a.prioritaet} · alle ${a.intervall} Tag(e)${a.dauer?' · '+a.dauer:''}<br>Zuletzt: ${lastStr} · Nächstes Mal: ${naechstesStr}</div>
       </div>
       <div class="row-actions">
-        <button class="edit-btn" onclick="openEditModal(${a.id})" title="Bearbeiten">✎</button>
-        <button class="del-btn"  onclick="deleteTask(${a.id})"    title="Löschen">×</button>
+        <button class="edit-btn" onclick="openEditModal(${a.id})" aria-label="Bearbeiten">✎</button>
+        <button class="del-btn"  onclick="deleteTask(${a.id})"    aria-label="Löschen">×</button>
       </div>
     </div>`;
   });
-
-  html += `<div class="backup-box">
-    <p>💾 Datensicherung — exportiere deine Daten regelmäßig, damit du sie bei einem Browser-Reset nicht verlierst.</p>
-    <div class="backup-btns">
-      <button class="backup-btn backup-btn-export" onclick="exportData()">⬇ Export</button>
-      <button class="backup-btn backup-btn-import" onclick="document.getElementById('import-file').click()">⬆ Import</button>
-    </div>
-  </div>
-  <button class="reset-btn" onclick="resetData()">⚠ Alle Daten zurücksetzen</button>`;
-
-  document.getElementById('view-alle').innerHTML = html;
-  const dl = document.getElementById('bereich-list');
-  if (dl) dl.innerHTML = bereiche.filter(b => b !== 'Alle').map(b => `<option value="${b}">`).join('');
+  html+=`<button class="reset-btn" onclick="confirmReset()">⚠ Alle Daten zurücksetzen</button>`;
+  document.getElementById('view-alle').innerHTML=html;
+  const dl=document.getElementById('bereich-list');
+  if(dl) dl.innerHTML=bereiche.filter(b=>b!=='Alle').map(b=>`<option value="${b}">`).join('');
 }
 
 function renderStatistik(state) {
-  const totalDone = Object.values(state.doneToday).reduce((s,a) => s + a.length, 0);
-  const days = Object.keys(state.doneToday).filter(d => state.doneToday[d].length > 0).length;
-
-  // Wochenbalken: letzte 7 Tage
-  const weekDays = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0,10);
-    const pts = (state.history || []).filter(h => h.date === ds).reduce((s,h) => s + h.pts, 0);
-    weekDays.push({ ds, lbl: d.toLocaleDateString('de-DE', {weekday:'short'}), pts, isToday: i === 0 });
+  const totalDone=Object.values(state.doneToday).reduce((s,a)=>s+a.length,0);
+  const days=Object.keys(state.doneToday).filter(d=>state.doneToday[d].length>0).length;
+  const weekDays=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const pts=(state.history||[]).filter(h=>h.date===ds).reduce((s,h)=>s+h.pts,0);
+    weekDays.push({ds,lbl:d.toLocaleDateString('de-DE',{weekday:'short'}),pts,isToday:i===0});
   }
-  const maxPts = Math.max(...weekDays.map(w => w.pts), 1);
-
-  let html = `<div class="stats-grid">
+  const maxPts=Math.max(...weekDays.map(w=>w.pts),1);
+  const isRecord=state.streak>0&&state.streak>=(state.bestStreak||0)&&state.streak>1;
+  let html=`<div class="stats-grid">
     <div class="stat-card"><div class="val">${state.totalPoints}</div><div class="lbl">Punkte gesamt</div></div>
-    <div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">Aktueller Streak</div></div>
+    <div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">Aktueller Streak</div>${isRecord?'<div class="sub">🔥 Persönlicher Rekord!</div>':state.bestStreak>0?'<div class="sub">Rekord: '+state.bestStreak+' Tage</div>':''}</div>
     <div class="stat-card"><div class="val">${totalDone}</div><div class="lbl">Erledigte Aufgaben</div></div>
     <div class="stat-card"><div class="val">${days}</div><div class="lbl">Aktive Tage</div></div>
   </div>
-  <div class="week-bar-wrap">
-    <div class="week-bar-title">Punkte letzte 7 Tage</div>
-    <div class="week-bars">`;
-  weekDays.forEach(w => {
-    const h = w.pts > 0 ? Math.max(4, Math.round((w.pts / maxPts) * 52)) : 2;
-    html += `<div class="week-bar-col">
-      <div class="week-bar-val">${w.pts > 0 ? w.pts : ''}</div>
-      <div class="week-bar-fill${w.isToday?' today':''}" style="height:${h}px"></div>
-      <div class="week-bar-lbl">${w.lbl}</div>
-    </div>`;
+  <div class="week-bar-wrap"><div class="week-bar-title">Punkte letzte 7 Tage</div><div class="week-bars">`;
+  weekDays.forEach(w=>{
+    const h=w.pts>0?Math.max(4,Math.round((w.pts/maxPts)*52)):2;
+    html+=`<div class="week-bar-col"><div class="week-bar-val">${w.pts>0?w.pts:''}</div><div class="week-bar-fill${w.isToday?' today':''}" style="height:${h}px"></div><div class="week-bar-lbl">${w.lbl}</div></div>`;
   });
-  html += `</div></div>`;
-
-  const hist = state.history || [];
-  if (hist.length) {
-    html += `<div class="section-title">Letzte Erledigungen</div>`;
-    hist.slice(0,40).forEach(h => {
-      html += `<div class="history-item">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${new Date(h.date).toLocaleDateString('de-DE')} · ${h.name}</span>
-        <span class="pts">+${h.pts}</span>
-      </div>`;
+  html+=`</div></div>`;
+  const hist=state.history||[];
+  if(hist.length){
+    html+=`<div class="section-title">Letzte Erledigungen</div>`;
+    hist.slice(0,40).forEach(h=>{
+      html+=`<div class="history-item"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${new Date(h.date).toLocaleDateString('de-DE')} · ${h.name}</span><span class="pts">+${h.pts}</span></div>`;
     });
-  } else {
-    html += `<div class="empty-msg"><div class="big">📊</div><p>Noch keine Erledigungen.</p></div>`;
-  }
-  document.getElementById('view-statistik').innerHTML = html;
+  } else { html+=`<div class="empty-msg"><div class="big">📊</div><p>Noch keine Erledigungen.</p></div>`; }
+  document.getElementById('view-statistik').innerHTML=html;
 }
 
-function setFilter(b) { alleFilter = b; render(); }
+function setFilter(b) { alleFilter=b; render(); }
 
 // ── Export / Import ────────────────────────────────────────────────
 function exportData() {
-  const state = loadState();
-  const json = JSON.stringify(state, null, 2);
-  const blob = new Blob([json], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toISOString().slice(0,10);
-  a.href = url; a.download = 'haushalt-backup-' + date + '.json';
-  a.click(); URL.revokeObjectURL(url);
-  showToast('Backup gespeichert!');
+  const state=loadState();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='haushalt-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url); showToast('Backup gespeichert!');
 }
-
 function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
     try {
-      const data = JSON.parse(e.target.result);
-      if (!data.aufgaben || !data.lastDone) { alert('Ungültige Backup-Datei.'); return; }
-      if (!confirm('Alle aktuellen Daten werden ersetzt. Fortfahren?')) return;
-      localStorage.setItem('haushalt_v3', JSON.stringify(data));
-      render(); showToast('Daten importiert!');
-    } catch(err) { alert('Fehler beim Lesen der Datei.'); }
+      const data=JSON.parse(e.target.result);
+      if(!data.aufgaben||!data.lastDone){alert('Ungültige Backup-Datei.');return;}
+      showConfirm('Backup importieren?','Alle aktuellen Daten werden durch das Backup ersetzt.',()=>{
+        localStorage.setItem('haushalt_v3',JSON.stringify(data)); render(); showToast('Daten importiert!');
+      });
+    } catch(err){alert('Fehler beim Lesen der Datei.');}
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  reader.readAsText(file); event.target.value='';
 }
 
-function resetData() {
-  if (confirm('Wirklich alle Daten und Punkte zurücksetzen? Die Excel-Startdaten bleiben erhalten.')) {
-    localStorage.removeItem('haushalt_v3');
-    alleFilter = 'Alle'; showDemnaechst = false;
-    render(); showToast('Daten zurückgesetzt');
+// ── Menü ───────────────────────────────────────────────────────────
+function toggleMenu() {
+  const dd=document.getElementById('dropdown'), ov=document.getElementById('dropdown-overlay');
+  const open=dd.style.display==='block';
+  dd.style.display=open?'none':'block'; ov.classList.toggle('open',!open);
+}
+function closeMenu() {
+  document.getElementById('dropdown').style.display='none';
+  document.getElementById('dropdown-overlay').classList.remove('open');
+}
+
+// ── Modals ─────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e,id) { if(e.target===document.getElementById(id)) closeModal(id); }
+
+function openNameModal() {
+  closeMenu(); const state=loadState();
+  document.getElementById('f-username').value=state.username||'';
+  document.getElementById('name-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-username').focus(),300);
+}
+function saveName() {
+  const state=loadState(); state.username=document.getElementById('f-username').value.trim();
+  saveState(state); closeModal('name-modal'); render(); showToast('Name gespeichert!');
+}
+
+function openReminderModal() {
+  closeMenu(); const state=loadState();
+  document.getElementById('f-reminder-time').value=state.reminderTime||'08:00';
+  document.getElementById('f-reminder-active').value=state.reminderActive?'1':'0';
+  document.getElementById('reminder-modal').classList.add('open');
+}
+function saveReminder() {
+  const state=loadState();
+  const active=document.getElementById('f-reminder-active').value==='1';
+  state.reminderTime=document.getElementById('f-reminder-time').value;
+  state.reminderActive=active; saveState(state);
+  if(active){
+    if('Notification' in window){
+      Notification.requestPermission().then(perm=>{
+        if(perm==='granted'){showToast('Erinnerung gespeichert!');scheduleReminder(state);}
+        else showToast('Benachrichtigung nicht erlaubt');
+      });
+    } else showToast('Benachrichtigungen nicht unterstützt');
+  } else showToast('Erinnerung deaktiviert');
+  closeModal('reminder-modal');
+}
+function scheduleReminder(state) {
+  if(!state.reminderActive||!('Notification' in window)) return;
+  const [h,m]=state.reminderTime.split(':').map(Number);
+  const now=new Date(), next=new Date(); next.setHours(h,m,0,0);
+  if(next<=now) next.setDate(next.getDate()+1);
+  setTimeout(()=>{
+    if(Notification.permission==='granted') new Notification('🏠 Haushalt',{body:'Schau nach was heute fällig ist!'});
+    scheduleReminder(loadState());
+  }, next-now);
+}
+
+function openInfoModal(tab) {
+  closeMenu();
+  const isVersion=tab==='version', state=loadState();
+  const totalDone=Object.values(state.doneToday).reduce((s,a)=>s+a.length,0);
+  const days=Object.keys(state.doneToday).filter(d=>state.doneToday[d].length>0).length;
+  let html='';
+  if(isVersion){
+    html=`<h2>📋 App-Info</h2>
+    <div class="info-section"><h3>Version</h3><p>Haushalt App v${APP_VERSION}</p></div>
+    <div class="info-section"><h3>Datenstand</h3><p>Aufgaben: <strong>${state.aufgaben.length}</strong> · Erledigungen: <strong>${totalDone}</strong><br>Aktive Tage: <strong>${days}</strong> · Punkte: <strong>${state.totalPoints}</strong><br>Bester Streak: <strong>${state.bestStreak||0} Tage</strong></p></div>
+    <div class="info-section"><h3>Datenspeicher</h3><p>Alle Daten liegen lokal auf deinem Gerät. Mache regelmäßig ein Backup über ⋮ → Backup exportieren.</p></div>`;
+  } else {
+    html=`<h2>ℹ Punktelogik</h2>
+    <div class="info-section"><h3>Formel</h3><p><strong>Punkte = Priorität + Energie − 1</strong><br>Maximum: 5 Punkte · Minimum: 1 Punkt</p></div>
+    <div class="info-section"><h3>Werte</h3>
+    <table class="pts-table"><tr><th>Priorität</th><th>Wert</th><th>Energie</th><th>Wert</th></tr>
+    <tr><td>Muss</td><td>3</td><td>Rot (hoch)</td><td>3</td></tr>
+    <tr><td>Sollte</td><td>2</td><td>Gelb (mittel)</td><td>2</td></tr>
+    <tr><td>Kann</td><td>1</td><td>Grün (gering)</td><td>1</td></tr></table></div>
+    <div class="info-section"><h3>Beispiele</h3>
+    <table class="pts-table"><tr><th>Aufgabe</th><th>Punkte</th></tr>
+    <tr><td>Toilette reinigen (Muss+Rot)</td><td><strong>5</strong></td></tr>
+    <tr><td>Herd abwischen (Sollte+Gelb)</td><td><strong>3</strong></td></tr>
+    <tr><td>Staub wischen (Kann+Grün)</td><td><strong>1</strong></td></tr></table></div>
+    <div class="info-section"><h3>Streak</h3><p>Steigt um 1 für jeden Tag mit mindestens einer erledigten Aufgabe.</p></div>`;
   }
+  html+=`<button class="btn-cancel" onclick="closeModal('info-modal')" style="margin-top:8px">Schließen</button>`;
+  document.getElementById('info-modal-content').innerHTML=html;
+  document.getElementById('info-modal').classList.add('open');
 }
 
-// ── Modal (Neu + Bearbeiten) ───────────────────────────────────────
+// ── Aufgabe Modal ──────────────────────────────────────────────────
 function openModal() {
-  document.getElementById('modal-title').textContent = 'Neue Aufgabe';
-  document.getElementById('f-edit-id').value = '';
-  ['f-name','f-bereich','f-intervall','f-dauer','f-haeufigkeit','f-geeignet'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-prio').value = 'Sollte';
-  document.getElementById('f-energie').value = 'Gelb';
+  document.getElementById('modal-title').textContent='Neue Aufgabe';
+  document.getElementById('f-edit-id').value='';
+  ['f-name','f-bereich','f-intervall','f-dauer','f-haeufigkeit','f-geeignet'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-prio').value='Sollte';
+  document.getElementById('f-energie').value='Gelb';
+  document.getElementById('f-lastdone').value='';
   populateBereichList();
   document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(),300);
 }
-
 function openEditModal(id) {
-  const state = loadState();
-  const task = state.aufgaben.find(a => a.id === id);
-  if (!task) return;
-  document.getElementById('modal-title').textContent = 'Aufgabe bearbeiten';
-  document.getElementById('f-edit-id').value = id;
-  document.getElementById('f-name').value        = task.name;
-  document.getElementById('f-bereich').value     = task.bereich;
-  document.getElementById('f-prio').value        = task.prioritaet;
-  document.getElementById('f-intervall').value   = task.intervall;
-  document.getElementById('f-energie').value     = task.energie;
-  document.getElementById('f-dauer').value       = task.dauer || '';
-  document.getElementById('f-haeufigkeit').value = task.haeufigkeit || '';
-  document.getElementById('f-geeignet').value    = task.geeignet || '';
+  const state=loadState(), task=state.aufgaben.find(a=>a.id===id); if(!task) return;
+  document.getElementById('modal-title').textContent='Aufgabe bearbeiten';
+  document.getElementById('f-edit-id').value=id;
+  document.getElementById('f-name').value=task.name;
+  document.getElementById('f-bereich').value=task.bereich;
+  document.getElementById('f-prio').value=task.prioritaet;
+  document.getElementById('f-intervall').value=task.intervall;
+  document.getElementById('f-energie').value=task.energie;
+  document.getElementById('f-dauer').value=task.dauer||'';
+  document.getElementById('f-lastdone').value=state.lastDone[id]||'';
+  document.getElementById('f-haeufigkeit').value=task.haeufigkeit||'';
+  document.getElementById('f-geeignet').value=task.geeignet||'';
   populateBereichList();
   document.getElementById('modal').classList.add('open');
 }
-
 function populateBereichList() {
-  const state = loadState();
-  const bereiche = [...new Set(state.aufgaben.map(a => a.bereich))];
-  const dl = document.getElementById('bereich-list');
-  if (dl) dl.innerHTML = bereiche.map(b => `<option value="${b}">`).join('');
+  const state=loadState(), bereiche=[...new Set(state.aufgaben.map(a=>a.bereich))];
+  const dl=document.getElementById('bereich-list');
+  if(dl) dl.innerHTML=bereiche.map(b=>`<option value="${b}">`).join('');
 }
-
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
-
 function saveTask() {
-  const name      = document.getElementById('f-name').value.trim();
-  const bereich   = document.getElementById('f-bereich').value.trim();
-  const intervall = parseInt(document.getElementById('f-intervall').value);
-  if (!name)                    { alert('Bitte Aufgabenname eingeben.'); return; }
-  if (!bereich)                 { alert('Bitte Bereich eingeben.'); return; }
-  if (!intervall || intervall < 1) { alert('Bitte gültiges Intervall (Tage) eingeben.'); return; }
-
-  const state  = loadState();
-  const editId = parseInt(document.getElementById('f-edit-id').value);
-  const taskData = {
-    bereich, name, intervall,
-    prioritaet:  document.getElementById('f-prio').value,
-    energie:     document.getElementById('f-energie').value,
-    dauer:       document.getElementById('f-dauer').value.trim() || '–',
-    haeufigkeit: document.getElementById('f-haeufigkeit').value.trim(),
-    geeignet:    document.getElementById('f-geeignet').value.trim(),
-  };
-
-  if (editId) {
-    const idx = state.aufgaben.findIndex(a => a.id === editId);
-    if (idx !== -1) state.aufgaben[idx] = Object.assign(state.aufgaben[idx], taskData);
+  const name=document.getElementById('f-name').value.trim();
+  const bereich=document.getElementById('f-bereich').value.trim();
+  const intervall=parseInt(document.getElementById('f-intervall').value);
+  if(!name){showToast('⚠ Bitte Name eingeben');return;}
+  if(!bereich){showToast('⚠ Bitte Bereich eingeben');return;}
+  if(!intervall||intervall<1){showToast('⚠ Bitte Intervall eingeben');return;}
+  const state=loadState();
+  const editId=parseInt(document.getElementById('f-edit-id').value);
+  const lastdoneVal=document.getElementById('f-lastdone').value;
+  const taskData={bereich,name,intervall,prioritaet:document.getElementById('f-prio').value,energie:document.getElementById('f-energie').value,dauer:document.getElementById('f-dauer').value.trim()||'–',haeufigkeit:document.getElementById('f-haeufigkeit').value.trim(),geeignet:document.getElementById('f-geeignet').value.trim()};
+  if(editId){
+    const idx=state.aufgaben.findIndex(a=>a.id===editId);
+    if(idx!==-1) state.aufgaben[idx]=Object.assign(state.aufgaben[idx],taskData);
+    if(lastdoneVal) state.lastDone[editId]=lastdoneVal;
     showToast('Aufgabe aktualisiert!');
   } else {
-    state.aufgaben.push(Object.assign({ id: state.nextId++ }, taskData));
+    const newId=state.nextId++;
+    state.aufgaben.push(Object.assign({id:newId},taskData));
+    if(lastdoneVal) state.lastDone[newId]=lastdoneVal;
     showToast('Aufgabe gespeichert!');
   }
-  saveState(state);
-  closeModal();
-  render();
+  saveState(state); closeModal('modal'); render();
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
-
 function showView(v) {
-  ['heute','alle','statistik'].forEach(n => document.getElementById('view-'+n).classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  ['heute','alle','statistik'].forEach(n=>document.getElementById('view-'+n).classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('nav button')[['heute','alle','statistik'].indexOf(v)].classList.add('active');
 }
 
-render();
+const _s=loadState(); scheduleReminder(_s); render();
 </script>
 </body>
 </html>
